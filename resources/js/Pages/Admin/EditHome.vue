@@ -112,7 +112,8 @@
                                             </span>
                                         </div>
 
-                                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ section.content }}</p>
+                                        <!-- Display formatted content -->
+                                        <div class="text-gray-600 text-sm mb-3 line-clamp-2" v-html="section.content"></div>
 
                                         <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500">
                                             <span class="flex items-center gap-1">
@@ -247,18 +248,104 @@
                                         >
                                     </div>
 
-                                    <!-- Content Field -->
+                                    <!-- Rich Text Editor for Content -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             Content <span class="text-red-500">*</span>
                                         </label>
-                                        <textarea
-                                            v-model="editingSection.content"
-                                            required
-                                            rows="4"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none"
-                                            placeholder="Enter section content"
-                                        ></textarea>
+                                        <div class="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                                            <!-- Toolbar -->
+                                            <div class="border-b border-gray-200 bg-gray-50 p-2 flex flex-wrap gap-1">
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('bold')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Bold"
+                                                >
+                                                    B
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('italic')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Italic"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 5h10M7 19h10m-5-14L9 19"></path>
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('underline')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Underline"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14M5 3v7a7 7 0 0014 0V3"></path>
+                                                    </svg>
+                                                </button>
+                                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('insertUnorderedList')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Bullet List"
+                                                >
+                                                   o
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('insertOrderedList')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Numbered List"
+                                                >
+                                                   123
+                                                </button>
+                                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('justifyLeft')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Align Left"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h16M3 12h16m-7 6h7"></path>
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('justifyCenter')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Align Center"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18M3 18h18"></path>
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="formatText('justifyRight')"
+                                                    class="p-2 rounded hover:bg-gray-200 transition-colors"
+                                                    title="Align Right"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h16M3 12h16m-7 6h7"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            <!-- Content Editable Area -->
+                                            <div
+                                                ref="contentEditor"
+                                                contenteditable="true"
+                                                style="direction: ltr; unicode-bidi: plaintext; text-align: left;"
+                                                @input="updateContent"
+                                                @paste="handlePaste"
+                                                class="min-h-[120px] p-3 focus:outline-none prose max-w-none"
+                                            ></div>
+
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-1">Supports rich text formatting, bold, italic, lists, and more</p>
                                     </div>
 
                                     <!-- Order Field -->
@@ -371,14 +458,14 @@
                                         >
 
                                         <!-- Background Image Preview -->
-                                        <div v-if="editingSection.background_value" class="mt-3 relative w-full h-32">
+                                        <div v-if="editingSection.backgroundPreview" class="mt-3 relative w-full h-32">
                                             <img
                                                 :src="editingSection.backgroundPreview"
                                                 class="w-full h-full object-cover rounded-lg border"
                                             >
                                             <button
                                                 type="button"
-                                                @click="editingSection.background_value = null"
+                                                @click="editingSection.background_value = ''; editingSection.backgroundPreview = ''"
                                                 class="absolute top-1 right-1 bg-white text-gray-600 rounded-full p-1 shadow hover:text-red-600"
                                             >
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -415,14 +502,14 @@
                                         >
 
                                         <!-- Image Preview -->
-                                        <div v-if="editingSection.image" class="mt-3 relative w-40 h-40">
+                                        <div v-if="editingSection.imagePreview" class="mt-3 relative w-40 h-40">
                                             <img
                                                 :src="editingSection.imagePreview"
                                                 class="w-full h-full object-cover rounded-lg border"
                                             >
                                             <button
                                                 type="button"
-                                                @click="editingSection.image = null"
+                                                @click="editingSection.image = ''; editingSection.imagePreview = ''"
                                                 class="absolute top-1 right-1 bg-white text-gray-600 rounded-full p-1 shadow hover:text-red-600"
                                             >
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -547,36 +634,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue"
 
+// Reactive state
 const sections = ref([])
-
-const editingSection = ref({
-    id: null,
-    title: '',
-    subtitle: '',
-    content: '',
-    image: null,
-    background_type: 'none',
-    text_color: '#000000',
-    background_value: '',
-    backgroundPreview: '',
-    imagePreview: '',
-    layout_type: 'text_left_image_right',
-    button_text: '',
-    button_link: '',
-    order: 0,
-    is_active: true
-})
-
+const editingSection = ref(createEmptySection())
 const showForm = ref(false)
 const showDeleteModal = ref(false)
 const isLoading = ref(false)
 const sectionToDelete = ref(null)
+const contentEditor = ref(null)
 
-// Computed properties
+// Computed properties for dashboard stats
 const activeSections = computed(() => {
     return sections.value.filter(section => section.is_active).length
 })
@@ -586,109 +657,165 @@ const sectionsWithImages = computed(() => {
 })
 
 const sectionsWithButtons = computed(() => {
-    return sections.value.filter(section => section.button_text).length
+    return sections.value.filter(section => section.button_text && section.button_text.trim() !== '').length
 })
 
-// Methods
-const fetchSections = async () => {
-    try {
-        const res = await axios.get('/admin/landing_sections')
-        sections.value = res.data
-    } catch (error) {
-        console.error('Error fetching sections:', error)
-        alert('Error loading sections. Please refresh the page.')
-    }
-}
-
-const editSection = (section) => {
-    editingSection.value = { ...section }
-    // Show image previews if existing files are found
-    if (section.image) {
-        editingSection.value.imagePreview = section.image
-    }
-
-    if (section.background_value && section.background_type === 'image') {
-        editingSection.value.backgroundPreview =  section.background_value    }
-    showForm.value = true
-}
-
-const newSection = () => {
-    editingSection.value = {
+// Helper function to create empty section
+function createEmptySection() {
+    return {
         id: null,
         title: '',
         subtitle: '',
         content: '',
         image: null,
         background_type: 'none',
-        background_value: '',
         text_color: '#000000',
+        background_value: '',
         backgroundPreview: '',
         imagePreview: '',
         layout_type: 'text_left_image_right',
         button_text: '',
         button_link: '',
-        order: sections.value.length + 1,
+        order: 0,
         is_active: true
     }
-    showForm.value = true
+}
+
+// Rich Text Editor Methods
+const formatText = (command, value = null) => {
+    if (contentEditor.value) {
+        // Exec command (bold/italic/etc)
+        document.execCommand(command, false, value)
+        contentEditor.value.focus()
+        // Update our reactive content and try to preserve caret
+        updateContent()
+        fixEditorTyping()
+    }
+}
+
+/**
+ * updateContent
+ * - Clone current selection Range (if any), update editingSection content from DOM,
+ *   then try to restore the cloned Range. This avoids using startContainer/startOffset
+ *   which can become invalid.
+ */
+const updateContent = () => {
+    if (!contentEditor.value) return
+
+    const sel = window.getSelection()
+    let savedRange = null
+
+    try {
+        if (sel && sel.rangeCount > 0) {
+            savedRange = sel.getRangeAt(0).cloneRange()
+        }
+    } catch (err) {
+        // ignore if selection can't be cloned
+        savedRange = null
+    }
+
+    // Update the reactive content from editor DOM (do NOT set innerHTML here)
+    editingSection.value.content = contentEditor.value.innerHTML
+
+    // Try to restore selection
+    try {
+        if (savedRange) {
+            sel.removeAllRanges()
+            sel.addRange(savedRange)
+        }
+    } catch (err) {
+        // If we cannot restore (range invalid), put caret at end
+        try {
+            const range = document.createRange()
+            range.selectNodeContents(contentEditor.value)
+            range.collapse(false)
+            sel.removeAllRanges()
+            sel.addRange(range)
+        } catch (e) {
+            // final fallback: do nothing
+        }
+    }
+}
+
+const handlePaste = (event) => {
+    event.preventDefault()
+
+    // Get plain text from clipboard
+    const text = event.clipboardData.getData('text/plain')
+
+    // Or get HTML if you want to preserve formatting
+    const html = event.clipboardData.getData('text/html')
+
+    // Insert the content at cursor position
+    if (html) {
+        document.execCommand('insertHTML', false, html)
+    } else {
+        // insertText keeps plain text and preserves spacing/newlines
+        document.execCommand('insertText', false, text)
+    }
+
+    // update reactive model and attempt to keep caret
+    updateContent()
+}
+
+// API methods
+const fetchSections = async () => {
+    try {
+        const response = await axios.get('/admin/landing_sections')
+        sections.value = response.data
+    } catch (error) {
+        console.error('Error fetching sections:', error)
+        alert('Error loading sections. Please refresh the page.')
+    }
 }
 
 const saveSection = async () => {
-    isLoading.value = true;
-
+    isLoading.value = true
     try {
-        const formData = new FormData();
+        const formData = new FormData()
 
-        // Append all text and number fields
-        formData.append('title', editingSection.value.title || '');
-        formData.append('subtitle', editingSection.value.subtitle || '');
-        formData.append('content', editingSection.value.content || '');
-        formData.append('background_type', editingSection.value.background_type || '');
-        formData.append('text_color', editingSection.value.text_color || '');
-        formData.append('layout_type', editingSection.value.layout_type || '');
-        formData.append('button_text', editingSection.value.button_text || '');
-        formData.append('button_link', editingSection.value.button_link || '');
-        formData.append('order', editingSection.value.order || 1);
-        formData.append('is_active', editingSection.value.is_active ? 1 : 0);
-        formData.append('user_id', editingSection.value.user_id || 1);
+        // Append all section data
+        Object.keys(editingSection.value).forEach(key => {
+            if (key === 'image' && editingSection.value.image instanceof File) {
+                formData.append('image', editingSection.value.image)
+            } else if (key === 'background_value' && editingSection.value.background_value instanceof File) {
+                formData.append('background_value', editingSection.value.background_value)
+            } else if (key !== 'backgroundPreview' && key !== 'imagePreview' && key !== 'id') {
+                const value = editingSection.value[key]
+                // For boolean is_active ensure we send 1/0 instead of "true"/"false" strings
+                if (key === 'is_active') {
+                    formData.append(key, value ? 1 : 0)
+                } else {
+                    formData.append(key, value === null ? '' : value)
+                }
+            }
+        })
 
-        // Append image file if available
-        if (editingSection.value.image instanceof File) {
-            formData.append('image', editingSection.value.image);
-        }
-
-        // Append background image if available
-        if (editingSection.value.background_value instanceof File) {
-            formData.append('background_value', editingSection.value.background_value);
-        } else {
-            formData.append('background_value', editingSection.value.background_value || '');
-        }
-
-        let url = '/admin/landing_sections';
-        let method = 'post';
+        let url = '/admin/landing_sections'
+        let method = 'post'
 
         if (editingSection.value.id) {
-            url = `/admin/landing_sections/${editingSection.value.id}`;
-            formData.append('_method', 'PUT');
+            url = `/admin/landing_sections/${editingSection.value.id}`
+            formData.append('_method', 'PUT')
         }
 
         await axios({
             method,
             url,
             data: formData,
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
 
-        await fetchSections();
-        showForm.value = false;
+        await fetchSections()
+        showForm.value = false
+        resetEditingSection()
     } catch (error) {
-        console.error('Error saving section:', error);
-        alert('Error saving section. Please try again.');
+        console.error('Error saving section:', error)
+        alert('Error saving section. Please try again.')
     } finally {
-        isLoading.value = false;
+        isLoading.value = false
     }
-};
-
+}
 
 const deleteSection = (id) => {
     const section = sections.value.find(s => s.id === id)
@@ -699,80 +826,169 @@ const deleteSection = (id) => {
 }
 
 const confirmDelete = async () => {
-    if (sectionToDelete.value) {
-        try {
-            await axios.delete(`/admin/landing_sections/${sectionToDelete.value.id}`)
-            await fetchSections()
-            showDeleteModal.value = false
-            sectionToDelete.value = null
-        } catch (error) {
-            console.error('Error deleting section:', error)
-            alert('Error deleting section. Please try again.')
-        }
+    if (!sectionToDelete.value) return
+
+    try {
+        await axios.delete(`/admin/landing_sections/${sectionToDelete.value.id}`)
+        await fetchSections()
+        showDeleteModal.value = false
+        sectionToDelete.value = null
+    } catch (error) {
+        console.error('Error deleting section:', error)
+        alert('Error deleting section. Please try again.')
     }
 }
 
 const toggleActive = async (section) => {
     try {
-        const updatedSection = { ...section, is_active: !section.is_active }
-        await axios.put(`/admin/landing_sections/${section.id}`, updatedSection)
-        section.is_active = !section.is_active
+        const updatedSection = {
+            ...section,
+            is_active: !section.is_active
+        }
+
+        await axios.patch(`/admin/landing_sections/${section.id}`, {
+            is_active: updatedSection.is_active
+        })
+
+        // Update local state
+        const index = sections.value.findIndex(s => s.id === section.id)
+        if (index !== -1) {
+            sections.value[index].is_active = updatedSection.is_active
+        }
     } catch (error) {
         console.error('Error toggling section:', error)
         alert('Error updating section. Please try again.')
     }
 }
 
+// UI methods
+const editSection = async (section) => {
+    editingSection.value = {
+        ...createEmptySection(),
+        ...section,
+        backgroundPreview: section.background_type === 'image' ? section.background_value : '',
+        imagePreview: section.image || ''
+    }
+    showForm.value = true
+
+    // Wait for the editor to be rendered
+    await nextTick()
+    if (contentEditor.value) {
+        // set innerHTML from the record (do this once, not on every keystroke)
+        contentEditor.value.innerHTML = section.content || ''
+        fixEditorTyping()
+    }
+}
+
+const newSection = () => {
+    editingSection.value = createEmptySection()
+    editingSection.value.order = sections.value.length > 0
+        ? Math.max(...sections.value.map(s => s.order)) + 1
+        : 1
+    showForm.value = true
+
+    // Clear editor content
+    nextTick(() => {
+        if (contentEditor.value) {
+            contentEditor.value.innerHTML = ''
+            fixEditorTyping()
+        }
+    })
+}
+
+const resetEditingSection = () => {
+    editingSection.value = createEmptySection()
+}
+
+// Image handling methods
 const compressImage = (file, maxWidth = 1920, quality = 0.8) => {
     return new Promise((resolve) => {
-        const img = new Image();
-        const reader = new FileReader();
+        const img = new Image()
+        const reader = new FileReader()
 
-        reader.onload = (e) => (img.src = e.target.result);
-        img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const scale = Math.min(maxWidth / img.width, 1);
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        reader.onload = (e) => {
+            img.src = e.target.result
+            img.onload = () => {
+                const canvas = document.createElement("canvas")
+                const scale = Math.min(maxWidth / img.width, 1)
+                canvas.width = img.width * scale
+                canvas.height = img.height * scale
 
-            canvas.toBlob(
-                (blob) => resolve(new File([blob], file.name, { type: "image/jpeg" })),
-                "image/jpeg",
-                quality
-            );
-        };
-        reader.readAsDataURL(file);
-    });
-};
+                const ctx = canvas.getContext("2d")
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
+                canvas.toBlob(
+                    (blob) => resolve(new File([blob], file.name, { type: "image/jpeg" })),
+                    "image/jpeg",
+                    quality
+                )
+            }
+        }
+        reader.readAsDataURL(file)
+    })
+}
 
 const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]
+    if (!file) return
 
-    const compressed = await compressImage(file);
-    editingSection.value.image = compressed;
-    editingSection.value.imagePreview = URL.createObjectURL(compressed);
-};
+    try {
+        const compressed = await compressImage(file)
+        editingSection.value.image = compressed
+        editingSection.value.imagePreview = URL.createObjectURL(compressed)
+    } catch (error) {
+        console.error('Error processing image:', error)
+        alert('Error processing image. Please try again.')
+    }
+}
 
 const handleBackgroundImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]
+    if (!file) return
 
-    const compressed = await compressImage(file);
-    editingSection.value.background_value = compressed;
-    editingSection.value.backgroundPreview = URL.createObjectURL(compressed);
-};
+    try {
+        const compressed = await compressImage(file)
+        editingSection.value.background_value = compressed
+        editingSection.value.backgroundPreview = URL.createObjectURL(compressed)
+    } catch (error) {
+        console.error('Error processing background image:', error)
+        alert('Error processing background image. Please try again.')
+    }
+}
 
+const fixEditorTyping = () => {
+    if (contentEditor.value) {
+        // force LTR and friendly text flow styles
+        contentEditor.value.setAttribute('dir', 'ltr')
+        contentEditor.value.style.direction = 'ltr'
+        // use plaintext unicode bidi to avoid browser auto-reshaping
+        contentEditor.value.style.unicodeBidi = 'plaintext'
+        contentEditor.value.style.textAlign = 'left'
+        contentEditor.value.style.whiteSpace = 'pre-wrap'
+        contentEditor.value.style.wordBreak = 'break-word'
+    }
+}
 
+// Lifecycle
+onMounted(() => {
+    fetchSections()
 
-onMounted(()=>{
-    fetchSections();
+    // Attach editor behaviours after DOM is ready
+    nextTick(() => {
+        if (!contentEditor.value) return
 
+        // Make editable and apply initial styles
+        contentEditor.value.setAttribute('contenteditable', 'true')
+        fixEditorTyping()
+
+        // Handle input and paste events
+        // Use input so updateContent runs after DOM is changed by user typing
+        contentEditor.value.addEventListener('input', updateContent)
+        contentEditor.value.addEventListener('paste', handlePaste)
+    })
 })
 </script>
+
 
 <style scoped>
 .line-clamp-2 {
@@ -782,8 +998,32 @@ onMounted(()=>{
     overflow: hidden;
 }
 
-/* Smooth transitions for all interactive elements */
-button, input, textarea, select {
-    transition: all 0.2s ease-in-out;
+/* Rich text editor styles */
+.prose :deep(p) {
+    margin-bottom: 0.5em;
+}
+
+.prose :deep(ul) {
+    list-style-type: disc;
+    margin-left: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.prose :deep(ol) {
+    list-style-type: decimal;
+    margin-left: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.prose :deep(strong) {
+    font-weight: bold;
+}
+
+.prose :deep(em) {
+    font-style: italic;
+}
+
+.prose :deep(u) {
+    text-decoration: underline;
 }
 </style>

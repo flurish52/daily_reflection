@@ -14,9 +14,7 @@ import SearchBar from "@/Components/GuestPartials/SearchBar.vue";
             <slot />
 
         <section
-            class="relative px-6 md:px-24 bg-cover bg-center text-secondary py-20"
-            style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80')"
-        >
+            class="relative bg-primary px-6 md:px-24 bg-cover bg-center text-secondary py-20">
             <div class="relative py-12 z-10 max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
                 <!-- Left Text -->
                 <div class="md:w-2/3 space-y-6">

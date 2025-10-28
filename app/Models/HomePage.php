@@ -21,7 +21,8 @@ class HomePage extends Model
         'button_text',
         'button_link',
         'order',
-        'is_active'
+        'is_active',
+        'text_color'
     ];
 
 }

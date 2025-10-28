@@ -4,6 +4,7 @@ import { usePage } from '@inertiajs/vue3'
 import GuestLayout from "@/Layouts/GuestLayout.vue"
 import { Link } from "@inertiajs/vue3"
 import HeroSliders from "@/Components/LandingPage/HeroSliders.vue"
+import Events from "@/Components/LandingPage/Events.vue";
 
 const props = defineProps({
     sections: Array,
@@ -17,6 +18,7 @@ const sections = computed(() => props.sections || [])
 <template>
     <GuestLayout>
         <HeroSliders :slides="slides"/>
+        <Events />
 
         <div
             v-for="section in sections"

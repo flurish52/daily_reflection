@@ -83,7 +83,7 @@
         <!-- Toggle button (mobile) -->
         <button
             @click="isOpen = !isOpen"
-            class="fixed top-4 left-4 z-50 md:hidden bg-white p-2 rounded-md shadow text-gray-700 focus:outline-none"
+            class="fixed top-4 right-4 z-50 md:hidden bg-white p-2 rounded-md shadow text-gray-700 focus:outline-none"
         >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -177,10 +177,11 @@ const AnalyticsIcon = {
 // Navigation Links
 const navigationLinks = ref([
     { name: 'Dashboard', slug: '/admin/dashboard', icon: DashboardIcon },
-    { name: 'Posts', slug: '/admin/posts', icon: PostsIcon, notification: 5 },
+    { name: 'Posts', slug: '/admin/posts', icon: PostsIcon, },
+    { name: 'Events', slug: '/admin/events', icon: PostsIcon, },
     { name: 'Categories', slug: '/admin/categories', icon: CategoriesIcon },
     { name: 'Staff', slug: '/admin/staff', icon: StaffIcon },
-    { name: 'Subscribers', slug: '/admin/subscribers', icon: SubscribersIcon, notification: 12 },
+    { name: 'Subscribers', slug: '/admin/subscribers', icon: SubscribersIcon,},
     { name: 'Emails & Notifications', slug: '/admin/emails', icon: EmailsIcon },
     { name: 'Home Page', slug: '/admin/homepage', icon: HomeIcon },
     { name: 'Hero sliders', slug: '/admin/hero_sliders', icon: HomeIcon },

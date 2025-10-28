@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gradient-to-br from-primary to-primary/90 rounded-2xl shadow-lg p-6 text-white">
+    <div class="bg-gradient-to-br from-primary to-primary/90 rounded-2xl shadow-lg p-6 text-white my-6 ">
         <h3 class="font-bold text-xl mb-2">Stay Updated</h3>
         <p class="text-primary-100 mb-4">Get the latest posts delivered to your inbox</p>
 

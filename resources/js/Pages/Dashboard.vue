@@ -1,10 +1,6 @@
 <template>
     <AuthenticatedLayout>
-
-    <div class="min-h-screen bg-gray-50 flex flex-col relative">
-        <div class="flex-1 flex flex-col">
-
-            <!-- Dashboard Content -->
+                    <!-- Dashboard Content -->
             <main class="flex-1 p-6 overflow-auto">
                 <!-- Stats Overview -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -42,64 +38,6 @@
                     </div>
                 </div>
 
-                <!-- Charts and Recent Activity -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Activity Chart -->
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900">Website Traffic</h3>
-                            <select class="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option>Last 7 days</option>
-                                <option>Last 30 days</option>
-                                <option>Last 90 days</option>
-                            </select>
-                        </div>
-                        <div class="h-64 bg-gradient-to-b from-blue-50 to-white rounded-lg flex items-end justify-between p-4">
-                            <div
-                                v-for="(bar, index) in trafficData"
-                                :key="index"
-                                class="flex flex-col items-center"
-                            >
-                                <div
-                                    class="w-8 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all hover:from-blue-600 hover:to-blue-500"
-                                    :style="{ height: `${bar.value}%` }"
-                                ></div>
-                                <span class="text-xs text-gray-600 mt-2">{{ bar.day }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Posts -->
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900">Recent Posts</h3>
-                            <Link href="/admin/posts" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                                View all
-                            </Link>
-                        </div>
-                        <div class="space-y-4">
-                            <div
-                                v-for="post in recentPosts"
-                                :key="post.id"
-                                class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                            >
-                                <img
-                                    :src="post.image"
-                                    :alt="post.title"
-                                    class="w-12 h-12 rounded-lg object-cover"
-                                >
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">{{ post.title }}</p>
-                                    <p class="text-xs text-gray-500">{{ post.date }}</p>
-                                </div>
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                    {{ post.status }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Quick Actions -->
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
@@ -109,26 +47,32 @@
                             :key="action.name"
                             class="flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
                         >
+                            <Link
+                                :href="action.slug">
                             <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-500 transition-colors">
                                 <component :is="action.icon" class="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
                             </div>
                             <span class="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
                                 {{ action.name }}
                             </span>
+                            </Link>
                         </button>
                     </div>
                 </div>
             </main>
-        </div>
-    </div>
     </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
-import AuthSideLinks from "@/Components/AdminPanel/AuthSideLinks.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+
+let props = defineProps({
+    recentPosts: Object,
+    totalPosts: Number,
+    subscribers: Number
+})
 
 // Icons (in a real app, these would be imported from an icon library)
 const DashboardIcon = {
@@ -266,14 +210,14 @@ const stats = ref([
     },
     {
         title: 'Total Posts',
-        value: '156',
+        value: props.totalPosts,
         trend: 8.2,
         icon: PostsIcon,
         bgColor: 'bg-gradient-to-r from-green-500 to-green-600'
     },
     {
         title: 'Subscribers',
-        value: '2,847',
+        value: props.subscribers,
         trend: 15.3,
         icon: UsersIcon,
         bgColor: 'bg-gradient-to-r from-purple-500 to-purple-600'
@@ -287,53 +231,16 @@ const stats = ref([
     }
 ])
 
-// Traffic Data for Chart
-const trafficData = ref([
-    { day: 'Mon', value: 65 },
-    { day: 'Tue', value: 80 },
-    { day: 'Wed', value: 75 },
-    { day: 'Thu', value: 90 },
-    { day: 'Fri', value: 85 },
-    { day: 'Sat', value: 70 },
-    { day: 'Sun', value: 60 }
-])
-
-// Recent Posts
-const recentPosts = ref([
-    {
-        id: 1,
-        title: 'Getting Started with Vue 3',
-        date: '2 hours ago',
-        status: 'Published',
-        image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'
-    },
-    {
-        id: 2,
-        title: 'Modern Web Design Trends',
-        date: '5 hours ago',
-        status: 'Draft',
-        image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'
-    },
-    {
-        id: 3,
-        title: 'Building Scalable APIs',
-        date: '1 day ago',
-        status: 'Published',
-        image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'
-    }
-])
-
 // Quick Actions
 const quickActions = ref([
-    { name: 'New Post', icon: PlusIcon },
-    { name: 'Upload Media', icon: UploadIcon },
-    { name: 'Site Settings', icon: SettingsIcon },
-    { name: 'View Analytics', icon: AnalyticsIcon }
+    { name: 'New Post', slug:'/article/create', icon: PlusIcon },
+    { name: 'New category', slug:'/admin/categories', icon: UploadIcon },
+    { name: 'Site Settings', slug:'/admin/Settings', icon: SettingsIcon },
+    { name: 'Subscribers', slug:'/admin/subscribers', icon: AnalyticsIcon }
 ])
 
 // Current route simulation
 const currentRoute = ref('/admin/dashboard')
-
 </script>
 
 <style scoped>

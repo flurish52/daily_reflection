@@ -8,15 +8,15 @@
                         <h1 class="text-3xl font-bold text-gray-900">Posts Management</h1>
                         <p class="text-gray-600 mt-2">Create, edit, and manage your blog posts</p>
                     </div>
-                    <button
-                        @click="openCreateModal"
+                    <Link
+                       href="/article/create"
                         class="mt-4 sm:mt-0 px-6 py-3 bg-primary hover:bg-secondary hover:text-primary text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
                         Create New Post
-                    </button>
+                    </Link>
                 </div>
 
                 <!-- Stats Overview -->
@@ -109,8 +109,8 @@
                                 class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                             >
                                 <option value="all">All Categories</option>
-                                <option v-for="category in categories" :key="category" :value="category">
-                                    {{ category }}
+                                <option v-for="category in $page.props.categories" :key="category.id" :value="category.name">
+                                    {{ category.name }}
                                 </option>
                             </select>
                         </div>
@@ -140,14 +140,14 @@
                     <div class="divide-y divide-gray-200">
                         <div
                             v-for="post in filteredPosts"
-                            :key="post.id"
+                            :key="post?.id"
                             class="p-6 hover:bg-gray-50 transition-colors duration-200"
                         >
                             <div class="flex flex-col lg:flex-row lg:items-center gap-4">
                                 <!-- Post Image -->
                                 <img
-                                    :src="post.image"
-                                    :alt="post.title"
+                                    :src="`/storage/${post?.featured_image}`"
+                                    :alt="post?.title"
                                     class="w-20 h-20 lg:w-16 lg:h-16 rounded-lg object-cover flex-shrink-0"
                                 >
 
@@ -155,29 +155,34 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
-                                            <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ post.title }}</h3>
-                                            <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ post.description }}</p>
+                                            <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ post?.title }}</h3>
+                                            <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ post?.description }}</p>
 
                                             <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                                                 <span class="flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                                     </svg>
-                                                    {{ post.author }}
+                                                    {{ post?.author }}
                                                 </span>
                                                 <span class="flex items-center gap-1">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                     </svg>
-                                                    {{ post.date_post }}
+                                                   {{ new Date(post?.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) }}
+
                                                 </span>
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full capitalize"
                                                       :class="getStatusClass(post.status)"
                                                 >
-                                                    {{ post.status }}
+                                                    {{ post?.status }}
                                                 </span>
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                                                    {{ post.category }}
+                                                    {{ post?.category?.name }}
+                                                </span>
+
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                                    {{ post?.visibility }}
                                                 </span>
                                             </div>
                                         </div>
@@ -185,14 +190,30 @@
                                         <!-- Action Buttons -->
                                         <div class="flex items-center gap-2 ml-4">
 
+                                            <!-- Publish Toggle -->
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    class="sr-only peer"
+                                                    :checked="post?.status === 'published'"
+                                                    @change="togglePublish(post)"
+                                                />
+                                                <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-green-500 relative transition-colors">
+                                                    <div
+                                                        class="absolute left-1 top-0.5 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5"
+                                                    ></div>
+                                                </div>
+                                            </label>
+
                                             <!-- Edit Button -->
                                             <Link
-                                               :href="`/`"
+                                                :href="`/article/create/${post.id}`"
                                                 class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200"
                                                 title="Edit Post"
                                             >
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                 </svg>
                                             </Link>
 
@@ -203,10 +224,12 @@
                                                 title="Delete Post"
                                             >
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                 </svg>
                                             </button>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -306,91 +329,29 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Link } from '@inertiajs/vue3'
 
-// Posts data array
-const posts = ref([
-    {
-        id: 1,
-        title: 'Getting Started with Vue 3 Composition API',
-        slug: 'getting-started-with-vue-3',
-        description: 'Learn how to use the new Composition API in Vue 3 to build more maintainable and scalable applications.',
-        image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        created_at: '2024-01-15',
-        date_post: 'January 15, 2024',
-        category: 'tutorial',
-        author: 'Sarah Johnson',
-        status: 'published',
-        total_comments: 12,
-        content: 'Full post content here...'
-    },
-    {
-        id: 2,
-        title: 'Modern Web Design Trends for 2024',
-        slug: 'modern-web-design-trends-2024',
-        description: 'Explore the latest web design trends that will dominate 2024, including dark mode, glass morphism, and more.',
-        image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        created_at: '2024-01-10',
-        date_post: 'January 10, 2024',
-        category: 'design',
-        author: 'Mike Chen',
-        status: 'published',
-        total_comments: 8,
-        content: 'Full post content here...'
-    },
-    {
-        id: 3,
-        title: 'Building Scalable APIs with Node.js',
-        slug: 'building-scalable-apis-nodejs',
-        description: 'A comprehensive guide to building robust and scalable REST APIs using Node.js and Express framework.',
-        image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&width=500&q=80',
-        created_at: '2024-01-08',
-        date_post: 'January 8, 2024',
-        category: 'development',
-        author: 'Alex Rodriguez',
-        status: 'draft',
-        total_comments: 0,
-        content: 'Full post content here...'
-    },
-    {
-        id: 4,
-        title: 'Introduction to Machine Learning Concepts',
-        slug: 'introduction-machine-learning-concepts',
-        description: 'Understand the fundamental concepts of machine learning and how they apply to real-world problems.',
-        image: 'https://images.unsplash.com/photo-1555255707-c07966088b7b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        created_at: '2024-01-05',
-        date_post: 'January 5, 2024',
-        category: 'ai',
-        author: 'Dr. Emily Watson',
-        status: 'scheduled',
-        total_comments: 3,
-        content: 'Full post content here...'
-    },
-    {
-        id: 5,
-        title: 'Mastering CSS Grid and Flexbox',
-        slug: 'mastering-css-grid-flexbox',
-        description: 'Learn how to effectively combine CSS Grid and Flexbox to create responsive and modern layouts.',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        created_at: '2024-01-03',
-        date_post: 'January 3, 2024',
-        category: 'css',
-        author: 'Lisa Thompson',
-        status: 'published',
-        total_comments: 15,
-        content: 'Full post content here...'
+// Receive posts from backend
+const props = defineProps({
+    posts: {
+        type: Array,
+        required: true
     }
-])
+})
 
-// Filter and search states
+// Replace local posts data with backend data
+const posts = ref(props.posts)
+
+// Filters
 const searchQuery = ref('')
 const statusFilter = ref('all')
 const categoryFilter = ref('all')
 const currentPage = ref(1)
 const postsPerPage = 10
 
-// Modal states
+// Modal
 const showDeleteModal = ref(false)
 const postToDelete = ref(null)
 
@@ -420,7 +381,6 @@ const thisMonthPosts = computed(() => {
 const filteredPosts = computed(() => {
     let filtered = posts.value
 
-    // Apply search filter
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(post =>
@@ -430,12 +390,10 @@ const filteredPosts = computed(() => {
         )
     }
 
-    // Apply status filter
     if (statusFilter.value !== 'all') {
         filtered = filtered.filter(post => post.status === statusFilter.value)
     }
 
-    // Apply category filter
     if (categoryFilter.value !== 'all') {
         filtered = filtered.filter(post => post.category === categoryFilter.value)
     }
@@ -447,7 +405,7 @@ const totalPages = computed(() => {
     return Math.ceil(filteredPosts.value.length / postsPerPage)
 })
 
-// Methods
+// Helpers
 const getStatusClass = (status) => {
     const classes = {
         published: 'bg-green-100 text-green-800',
@@ -455,21 +413,6 @@ const getStatusClass = (status) => {
         scheduled: 'bg-blue-100 text-blue-800'
     }
     return classes[status] || 'bg-gray-100 text-gray-800'
-}
-
-const openCreateModal = () => {
-    // In a real app, this would open a create post modal
-    alert('Create new post functionality would open here')
-}
-
-const viewPost = (post) => {
-    // In a real app, this would navigate to the post view
-    alert(`Viewing post: ${post.title}`)
-}
-
-const editPost = (post) => {
-    // In a real app, this would open the post editor
-    alert(`Editing post: ${post.title}`)
 }
 
 const confirmDelete = (post) => {
@@ -492,11 +435,22 @@ const clearFilters = () => {
     currentPage.value = 1
 }
 
-// Lifecycle
-onMounted(() => {
-    console.log('Posts management component mounted')
-})
+const togglePublish = async (post) => {
+    const newStatus = post.status === 'published' ? 'draft' : 'published'
+
+    try {
+        const response = await axios.put(`/admin/article/${post.id}/toggle-status`, { status: newStatus })
+        post.status = newStatus
+        alert(response.data.message || 'Status updated successfully')
+    } catch (error) {
+        console.error('Failed to update post status', error)
+        alert('Failed to update post status')
+    }
+}
+
+
 </script>
+
 
 <style scoped>
 .line-clamp-2 {

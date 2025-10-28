@@ -37,6 +37,12 @@ class HomePageController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->has('is_active') && is_string($request->is_active)) {
+            $request->merge([
+                'is_active' => $request->is_active === 'true' ? true : false,
+            ]);
+        }
+
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
@@ -97,6 +103,12 @@ class HomePageController extends Controller
      */
     public function update(Request $request, HomePage $section)
     {
+
+        if ($request->has('is_active') && is_string($request->is_active)) {
+            $request->merge([
+                'is_active' => $request->is_active === 'true' ? true : false,
+            ]);
+        }
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
@@ -134,7 +146,23 @@ class HomePageController extends Controller
         $validated['user_id'] = auth()->id();
 
         $section->update($validated);
+        return response()->json([
+            'message' => 'Section updated successfully',
+            'data' => $section
+        ]);
+    }
+ public function updateStatus(Request $request, HomePage $section)
+    {
+        if ($request->has('is_active') && is_string($request->is_active)) {
+            $request->merge([
+                'is_active' => $request->is_active === 'true' ? true : false,
+            ]);
+        }
+        $validated = $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
 
+        $section->update($validated);
         return response()->json([
             'message' => 'Section updated successfully',
             'data' => $section
